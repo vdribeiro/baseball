@@ -29,6 +29,11 @@ class Pessoa
 
         //Imprime
         virtual void info();
+
+        //Operadores
+        bool operator ==(const Pessoa & pe) const;
+        bool operator <(const Pessoa & pe) const;
+        bool operator >(const Pessoa & pe) const;
 };
 
 #endif

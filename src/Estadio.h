@@ -2,7 +2,6 @@
 #define ESTADIO_H_
 
 #include <iostream>
-#include <vector>
 #include <string>
 
 using namespace std;

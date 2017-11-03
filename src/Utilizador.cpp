@@ -1,7 +1,7 @@
 #include "Utilizador.h"
 
 Utilizador::Utilizador(unsigned int cod, string name, string dn, string nac, string senha, unsigned int pri)
-: Pessoa(cod, name, dn, nac), pass(senha), prioridade(pri) {}
+: Pessoa(cod, name, dn, nac), prioridade(pri), pass(senha) {}
 
 Utilizador::~Utilizador() {}
 

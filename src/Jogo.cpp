@@ -5,9 +5,9 @@ Jogo::Jogo(unsigned int cod, Equipa *visitant, Equipa *visitad, string date, vec
 		unsigned int homrun, unsigned int spectadores, string result, string batidas, string erro):
 		id (cod), visitante(visitant), visitado(visitad), data(date), arbitos(arbito), strikes(strike), homerun(homrun),
 		espectadores(spectadores), resultado(result), Hit(batidas), error(erro)
-		{} //Construtor
+		{}
 
-Jogo::~Jogo() {} //Destrutor
+Jogo::~Jogo() {}
 
 unsigned int Jogo::getid()
 {return id;}
@@ -75,7 +75,6 @@ string Jogo::geterror()
 void Jogo::seterror (string erro)
 {error=erro;}
 
-//Imprime
 void Jogo::imprime()
 {
 	cout << "Codigo: " << id << endl;
@@ -83,7 +82,7 @@ void Jogo::imprime()
 	visitante->imprime();
 	cout << "Equipa da casa: " << endl;
 	visitado->imprime();
-	cout << "Data: " << data << endl;
+	cout << "Data: " << data << endl << endl;
 	cout << "Arbito(s): " << endl;
 	vector<Umpire*>::iterator it;
 	for (it = arbitos.begin(); it != arbitos.end(); it++)
@@ -96,5 +95,5 @@ void Jogo::imprime()
 	cout << "Espectadores: " << espectadores << endl;
 	cout << "Resultado: " << resultado << endl;
 	cout << "Hit: " << Hit << endl;
-	cout << "Error" << error << endl;
+	cout << "Erros: " << error << endl;
 }

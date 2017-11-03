@@ -36,3 +36,24 @@ void Pessoa::info()
 	cout << "Data de Nascimento: " << data_nasc << endl;
 	cout << "Nacionalidade: " << nacionalidade << endl;
 }
+
+bool Pessoa::operator ==(const Pessoa & pe) const
+{
+	if ((nome==pe.nome) && (data_nasc==pe.data_nasc) && (nacionalidade==pe.nacionalidade))
+		return true;
+	return false;
+}
+
+bool Pessoa::operator <(const Pessoa & pe) const
+{
+	if (data_nasc<pe.data_nasc)
+		return true;
+	return false;
+}
+
+bool Pessoa::operator >(const Pessoa & pe) const
+{
+	if (data_nasc>pe.data_nasc)
+		return true;
+	return false;
+}

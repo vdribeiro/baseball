@@ -5,12 +5,20 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <sstream>
+//#include <stdio.h>
+//#include <stdlib.h>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
-#include "Erro.h"
 #include "Utilizador.h"
 #include "Campeonato.h"
+#include "Simulacao.h"
+
+#include "InsertionSort.h"
+#include "Erro.h"
 
 class Baseball
 {
@@ -67,19 +75,37 @@ class Baseball
 		void setpes(vector <Pessoa *> pes);
 
 		//Imprime
+		//-Baseball
 		void imprime();
+		//-Utilizadores
 		void infouti();
+		void infouti(string priority); //-Dada uma prioridade
+		//-Campeonatos
 		void infocmp();
-		void infocmp(unsigned int year);
+		void infocmp(unsigned int year); //-Dado um ano
+		//-Jogos
 		void infojog();
+		void infojog(string home, string guest); //-Dados os nomes das equipas
+		//-Equipas
 		void infoequ();
+		void infoequ(string country); //-Dado um pais
+		//-Estadios
 		void infoest();
+		void infoest(string team); //-Dada uma equipa
+		//-Jogadores
 		void infoply();
+		void infoply(string position); //-Dada a posicao
+		//-Managers
 		void infoman();
+		//-GM's
 		void infomgm();
+		//-Medicos
 		void infoprp();
+		//-Treinadores
 		void infotrn();
+		//-Arbitos
 		void infoarb();
+		//-Pessoas
 		void infoppl();
 
 		//Procura
@@ -203,8 +229,16 @@ class Baseball
 		//Sistema de Login
 		int login(unsigned int login, string senha);
 
-		//Carrega Pessoas
+		//Carrega e Ordena Pessoas
 		bool loadppl();
+
+		//Simulacao
+		bool simulacao(int modo);
+		void pause(int modo);
+		void simhelp();
+
+		//Ajuda
+		void help();
 
 };
 

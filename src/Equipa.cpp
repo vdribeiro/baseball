@@ -67,7 +67,7 @@ void Equipa::setdet(string det)
 
 void Equipa::imprime()
 {
-	cout << endl << "EQUIPA" << endl;
+	cout << endl << "Equipa" << endl;
 	cout << "Codigo: " << id << endl;
 	cout << "Nome: " << nome <<endl;
 	cout << endl << "Estadio: " << endl;

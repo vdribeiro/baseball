@@ -115,6 +115,21 @@ void Baseball::infouti()
 	}
 }
 
+void Baseball::infouti(string priority)
+{
+	unsigned int prio=2;
+	if (priority == "administrador") {prio=1;}
+	vector<Utilizador *>::iterator it;
+	for (it = utilizadores.begin(); it != utilizadores.end(); it++)
+	{
+		if (prio==(*it)->getpri())
+		{
+			(*it)->info();
+			cout << endl;
+		}
+	}
+}
+
 void Baseball::infocmp()
 {
 	vector<Campeonato *>::iterator it;
@@ -148,6 +163,20 @@ void Baseball::infojog()
 	}
 }
 
+void Baseball::infojog(string home, string guest)
+{
+	vector<Jogo *>::iterator it;
+	for (it = jogos.begin(); it != jogos.end(); it++)
+	{
+		if ((home == (*it)->getvisitado()->getnome()) &&
+				(guest == (*it)->getvisitante()->getnome()))
+		{
+			(*it)->imprime();
+			cout << endl;
+		}
+	}
+}
+
 void Baseball::infoequ()
 {
 	vector<Equipa *>::iterator it;
@@ -156,7 +185,19 @@ void Baseball::infoequ()
 		(*it)->imprime();
 		cout << endl;
 	}
+}
 
+void Baseball::infoequ(string country)
+{
+	vector<Equipa *>::iterator it;
+	for (it = equipas.begin(); it != equipas.end(); it++)
+	{
+		if (country == (*it)->getpais())
+		{
+			(*it)->imprime();
+			cout << endl;
+		}
+	}
 }
 
 void Baseball::infoest()
@@ -169,6 +210,19 @@ void Baseball::infoest()
 	}
 }
 
+void Baseball::infoest(string team)
+{
+	vector<Equipa *>::iterator it;
+	for (it = equipas.begin(); it != equipas.end(); it++)
+	{
+		if (team == (*it)->getnome())
+		{
+			(*it)->getest()->imprime();
+			cout << endl;
+		}
+	}
+}
+
 void Baseball::infoply()
 {
 	vector<Jogador *>::iterator it;
@@ -176,6 +230,19 @@ void Baseball::infoply()
 	{
 		(*it)->info();
 		cout << endl;
+	}
+}
+
+void Baseball::infoply(string position)
+{
+	vector<Jogador *>::iterator it;
+	for (it = jogadores.begin(); it != jogadores.end(); it++)
+	{
+		if (position == (*it)->getpos())
+		{
+			(*it)->info();
+			cout << endl;
+		}
 	}
 }
 
@@ -578,6 +645,7 @@ bool Baseball::init()
 	}
 	return true;
 }
+
 //-Limpa vectores
 bool Baseball::resetdados()
 {
@@ -2020,17 +2088,29 @@ bool Baseball::rmvarb()
 //-Leitura
 bool Baseball::ledados()
 {
-	/*Baseball::readuti();
-	Baseball::readcmp();
-	Baseball::readjog();
-	Baseball::readequ();
-	Baseball::readest();
-	Baseball::readply();
-	Baseball::readman();
-	Baseball::readmgm();
-	Baseball::readmed();
-	Baseball::readtrn();
-	Baseball::readarb();*/
+	if (Baseball::readuti())
+	{cout << "Utilizadores Carregados" << endl;}
+	if (Baseball::readarb())
+	{cout << "Arbitos Carregados" << endl;}
+	if (Baseball::readmed())
+	{cout << "Medicos Carregados" << endl;}
+	if (Baseball::readtrn())
+	{cout << "Treinadores Carregados" << endl;}
+	if (Baseball::readmgm())
+	{cout << "GM's Carregados" << endl;}
+	if (Baseball::readply())
+	{cout << "Jogadores Carregados" << endl;}
+	if (Baseball::readest())
+	{cout << "Estadios Carregados" << endl;}
+	if (Baseball::readman())
+	{cout << "Managers Carregados" << endl;}
+	if (Baseball::readequ())
+	{cout << "Equipas Carregados" << endl;}
+	if (Baseball::readjog())
+	{cout << "Jogos Carregados" << endl;}
+	if (Baseball::readcmp())
+	{cout << "Campeonatos Carregados" << endl;}
+	cout << endl;
 	return true;
 }
 
@@ -2038,7 +2118,7 @@ bool Baseball::readuti()
 {
 	unsigned int idu, prioridade;
 	string name, data_nasc, nacionalidade, pass;
-	string line;
+	string temp;
 	ifstream futi("utilizadores.txt");
 	try
 	{
@@ -2046,16 +2126,528 @@ bool Baseball::readuti()
 		{
 			while (!futi.eof())
 			{
-				getline(futi,line);
-				cout << line << endl;
-				//Tratar string
+				getline(futi, temp, ',');
+				idu = atoi(temp.c_str());
+				getline(futi, name, ',');
+				getline(futi, data_nasc, ',');
+				getline(futi, nacionalidade, ',');
+				getline(futi, pass, ',');
+				getline(futi, temp, ',');
+				prioridade = atoi(temp.c_str());
 				Utilizador *u = new Utilizador(idu, name, data_nasc, nacionalidade, pass, prioridade);
 				utilizadores.push_back(u);
+				getline(futi, temp);
 			}
 			futi.close();
+			utilizadores.pop_back();
+			//Baseball::infouti();
 		} else
 		{
-			cout << "Erro a abrir ficheiro" << endl;
+			cout << "Erro a abrir o ficheiro utilizadores" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::readcmp()
+{
+	unsigned int idc, year, idj, n;
+	string name;
+	vector <Jogo *> games;
+	Jogo *game;
+	string temp;
+	ifstream fcmp("campeonatos.txt");
+	try
+	{
+		if (fcmp.is_open())
+		{
+			while (!fcmp.eof())
+			{
+				getline(fcmp, temp, ',');
+				idc = atoi(temp.c_str());
+				getline(fcmp, name, ',');
+				getline(fcmp, temp, ',');
+				n = atoi(temp.c_str());
+				games.clear();
+				for(unsigned int i=0; i!=n; i++)
+				{
+					getline(fcmp, temp, ',');
+					idj = atoi(temp.c_str());
+					game = Baseball::getobjjgo(idj);
+					if (game == NULL)
+					{
+						//cout << "Campeonato:: Jogo inexistente" << endl;
+					} else
+					{
+						games.push_back(game);
+					}
+				}
+				getline(fcmp, temp, ',');
+				year = atoi(temp.c_str());
+				Campeonato *c = new Campeonato(idc, name, games, year);
+				campeonatos.push_back(c);
+				getline(fcmp, temp);
+			}
+			fcmp.close();
+			campeonatos.pop_back();
+			//Baseball::infocmp();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro campeonatos" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::readjog()
+{
+	unsigned int idj, ide, ida, strikes, homerun, espectadores, n;
+	Equipa *visitante;
+	Equipa *visitado;
+	string data, resultado, hit, erro;
+	vector <Umpire *> arbitos;
+	Umpire *arbit;
+	string temp;
+	ifstream fjog("jogos.txt");
+	try
+	{
+		if (fjog.is_open())
+		{
+			while (!fjog.eof())
+			{
+				getline(fjog, temp, ',');
+				idj = atoi(temp.c_str());
+				getline(fjog, temp, ',');
+				ide = atoi(temp.c_str());
+				visitante = Baseball::getobjequ(ide);
+				if (visitante == NULL)
+				{
+					//cout << "Jogo:: Equipa inexistente" << endl;
+				}
+				getline(fjog, temp, ',');
+				ide = atoi(temp.c_str());
+				visitado = Baseball::getobjequ(ide);
+				if (visitado == NULL)
+				{
+					//cout << "Jogo:: Equipa inexistente" << endl;
+				}
+				getline(fjog, data, ',');
+				getline(fjog, temp, ',');
+				n = atoi(temp.c_str());
+				arbitos.clear();
+				for(unsigned int i=0; i!=n; i++)
+				{
+					getline(fjog, temp, ',');
+					ida = atoi(temp.c_str());
+					arbit = Baseball::getobjarb(ida);
+					if (arbit == NULL)
+					{
+						//cout << "Jogo:: Arbito inexistente" << endl;
+					} else
+					{
+						arbitos.push_back(arbit);
+					}
+				}
+				getline(fjog, temp, ',');
+				strikes= atoi(temp.c_str());
+				getline(fjog, temp, ',');
+				homerun = atoi(temp.c_str());
+				getline(fjog, temp, ',');
+				espectadores = atoi(temp.c_str());
+				getline(fjog, resultado, ',');
+				getline(fjog, hit, ',');
+				getline(fjog, erro, ',');
+				Jogo *j = new Jogo(idj, visitante, visitado, data, arbitos, strikes, homerun, espectadores, resultado, hit, erro);
+				jogos.push_back(j);
+				getline(fjog, temp);
+			}
+			fjog.close();
+			jogos.pop_back();
+			//Baseball::infojog();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro jogos" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::readequ()
+{
+	unsigned int ide, idt, idp, n;
+	string name, pais, patrocina, bio;
+	Estadio *estadio;
+	vector <Jogador *> players;
+	Jogador *play;
+	ManagerGM *ctm;
+	Manager *hman;
+	PrepFisico *fis;
+	string temp;
+	ifstream fequ("equipas.txt");
+	try
+	{
+		if (fequ.is_open())
+		{
+			while (!fequ.eof())
+			{
+				getline(fequ, temp, ',');
+				ide = atoi(temp.c_str());
+				getline(fequ, name, ',');
+				getline(fequ, temp, ',');
+				idt = atoi(temp.c_str());
+				estadio = Baseball::getobjest(idt);
+				if (estadio == NULL)
+				{
+					//cout << "Equipa:: Estadio inexistente" << endl;
+				}
+				getline(fequ, temp, ',');
+				n = atoi(temp.c_str());
+				players.clear();
+				for(unsigned int i=0; i!=n; i++)
+				{
+					getline(fequ, temp, ',');
+					idp = atoi(temp.c_str());
+					play = Baseball::getobjply(idp);
+					if (play == NULL)
+					{
+						//cout << "Equipa:: Jogador inexistente" << endl;
+					} else
+					{
+						players.push_back(play);
+					}
+				}
+				getline(fequ, temp, ',');
+				idt = atoi(temp.c_str());
+				ctm = Baseball::getobjmgm(idt);
+				if (ctm == NULL)
+				{
+					//cout << "Equipa:: ManagerGM inexistente" << endl;
+				}
+				getline(fequ, temp, ',');
+				idt = atoi(temp.c_str());
+				hman = Baseball::getobjman(idt);
+				if (hman == NULL)
+				{
+					//cout << "Equipa:: Manager inexistente" << endl;
+				}
+				getline(fequ, temp, ',');
+				idt = atoi(temp.c_str());
+				fis = Baseball::getobjfis(idt);
+				if (fis == NULL)
+				{
+					//cout << "Equipa:: Medico inexistente" << endl;
+				}
+				getline(fequ, pais, ',');
+				getline(fequ, patrocina, ',');
+				getline(fequ, bio, ',');
+				Equipa *e = new Equipa(ide, name, estadio, players, ctm, hman, fis, pais, patrocina, bio);
+				equipas.push_back(e);
+				getline(fequ, temp);
+			}
+			fequ.close();
+			equipas.pop_back();
+			//Baseball::infoequ();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro equipas" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::readest()
+{
+	unsigned int ide, cap;
+	string name;
+	string temp;
+	ifstream fest("estadios.txt");
+	try
+	{
+		if (fest.is_open())
+		{
+			while (!fest.eof())
+			{
+				getline(fest, temp, ',');
+				ide = atoi(temp.c_str());
+				getline(fest, name, ',');
+				getline(fest, temp, ',');
+				cap = atoi(temp.c_str());
+				Estadio *e = new Estadio(ide, name, cap);
+				estadios.push_back(e);
+				getline(fest, temp);
+			}
+			fest.close();
+			estadios.pop_back();
+			//Baseball::infoest();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro estadios" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::readply()
+{
+	unsigned int idp, peso;
+	string name, data_nasc, nacionalidade, posicao, bio;
+	float altura;
+	double salario;
+	string temp;
+	ifstream fply("jogadores.txt");
+	try
+	{
+		if (fply.is_open())
+		{
+			while (!fply.eof())
+			{
+				getline(fply, temp, ',');
+				idp = atoi(temp.c_str());
+				getline(fply, name, ',');
+				getline(fply, data_nasc, ',');
+				getline(fply, nacionalidade, ',');
+				getline(fply, temp, ',');
+				peso = atoi(temp.c_str());
+				getline(fply, temp, ',');
+				altura = atof(temp.c_str());
+				getline(fply, posicao, ',');
+				getline(fply, temp, ',');
+				salario = atof(temp.c_str());
+				getline(fply, bio, ',');
+				Jogador *j = new Jogador(idp, name, data_nasc, nacionalidade, peso, altura, posicao, salario, bio);
+				jogadores.push_back(j);
+				getline(fply, temp);
+			}
+			fply.close();
+			jogadores.pop_back();
+			//Baseball::infoply();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro jogadores" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::readman()
+{
+	unsigned int idm, idt, n;
+	string name, data_nasc, nacionalidade, bio;
+	vector <Treinador *> treinam;
+	Treinador *treina;
+	string temp;
+	ifstream fman("managers.txt");
+	try
+	{
+		if (fman.is_open())
+		{
+			while (!fman.eof())
+			{
+				getline(fman, temp, ',');
+				idm = atoi(temp.c_str());
+				getline(fman, name, ',');
+				getline(fman, data_nasc, ',');
+				getline(fman, nacionalidade, ',');
+				getline(fman, temp, ',');
+				n = atoi(temp.c_str());
+				treinam.clear();
+				for(unsigned int i=0; i!=n; i++)
+				{
+					getline(fman, temp, ',');
+					idt = atoi(temp.c_str());
+					treina = Baseball::getobjtrn(idt);
+					if (treina == NULL)
+					{
+						//cout << "Manager:: Treinador inexistente" << endl;
+					} else
+					{
+						treinam.push_back(treina);
+					}
+				}
+				getline(fman, bio, ',');
+				Manager *m = new Manager(idm, name, data_nasc, nacionalidade, treinam, bio);
+				managers.push_back(m);
+				getline(fman, temp);
+			}
+			fman.close();
+			managers.pop_back();
+			//Baseball::infoman();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro managers" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::readmgm()
+{
+	unsigned int idg;
+	string name, data_nasc, nacionalidade, bio;
+	string temp;
+	ifstream fmgm("mangms.txt");
+	try
+	{
+		if (fmgm.is_open())
+		{
+			while (!fmgm.eof())
+			{
+				getline(fmgm, temp, ',');
+				idg = atoi(temp.c_str());
+				getline(fmgm, name, ',');
+				getline(fmgm, data_nasc, ',');
+				getline(fmgm, nacionalidade, ',');
+				getline(fmgm, bio, ',');
+				ManagerGM *g = new ManagerGM(idg, name, data_nasc, nacionalidade, bio);
+				mangms.push_back(g);
+				getline(fmgm, temp);
+			}
+			fmgm.close();
+			mangms.pop_back();
+			//Baseball::infomgm();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro mangms" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::readmed()
+{
+	unsigned int idf;
+	string name, data_nasc, nacionalidade, bio;
+	string temp;
+	ifstream ffis("medicos.txt");
+	try
+	{
+		if (ffis.is_open())
+		{
+			while (!ffis.eof())
+			{
+				getline(ffis, temp, ',');
+				idf = atoi(temp.c_str());
+				getline(ffis, name, ',');
+				getline(ffis, data_nasc, ',');
+				getline(ffis, nacionalidade, ',');
+				getline(ffis, bio, ',');
+				PrepFisico *f = new PrepFisico(idf, name, data_nasc, nacionalidade, bio);
+				medicos.push_back(f);
+				getline(ffis, temp);
+			}
+			ffis.close();
+			medicos.pop_back();
+			//Baseball::infoprp();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro medicos" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::readtrn()
+{
+	unsigned int idt;
+	string name, data_nasc, nacionalidade, bio;
+	string temp;
+	ifstream ftrn("treinadores.txt");
+	try
+	{
+		if (ftrn.is_open())
+		{
+			while (!ftrn.eof())
+			{
+				getline(ftrn, temp, ',');
+				idt = atoi(temp.c_str());
+				getline(ftrn, name, ',');
+				getline(ftrn, data_nasc, ',');
+				getline(ftrn, nacionalidade, ',');
+				getline(ftrn, bio, ',');
+				Treinador *t = new Treinador(idt, name, data_nasc, nacionalidade, bio);
+				treinadores.push_back(t);
+				getline(ftrn, temp);
+			}
+			ftrn.close();
+			treinadores.pop_back();
+			//Baseball::infotrn();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro treinadores" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::readarb()
+{
+	unsigned int ida;
+	string name, data_nasc, nacionalidade, bio;
+	string temp;
+	ifstream farb("arbitos.txt");
+	try
+	{
+		if (farb.is_open())
+		{
+			while (!farb.eof())
+			{
+				getline(farb, temp, ',');
+				ida = atoi(temp.c_str());
+				getline(farb, name, ',');
+				getline(farb, data_nasc, ',');
+				getline(farb, nacionalidade, ',');
+				getline(farb, bio, ',');
+				Umpire *a = new Umpire(ida, name, data_nasc, nacionalidade, bio);
+				arbitos.push_back(a);
+				getline(farb, temp);
+			}
+			farb.close();
+			arbitos.pop_back();
+			//Baseball::infoarb();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro arbitos" << endl;
+			return false;
 		}
 	} catch(ErroFx erro) {
 		cout << "Erro no ficheiro " << erro.ficheiro << endl;
@@ -2067,30 +2659,366 @@ bool Baseball::readuti()
 //-Escrita
 bool Baseball::guardadados()
 {
+	if (Baseball::writeuti())
+	{cout << "Utilizadores Guardados" << endl;}
+	if (Baseball::writecmp())
+	{cout << "Campeonatos Guardados" << endl;}
+	if (Baseball::writejog())
+	{cout << "Jogos Guardados" << endl;}
+	if (Baseball::writeequ())
+	{cout << "Equipas Guardados" << endl;}
+	if (Baseball::writeest())
+	{cout << "Estadios Guardados" << endl;}
+	if (Baseball::writeply())
+	{cout << "Jogadores Guardados" << endl;}
+	if (Baseball::writeman())
+	{cout << "Managers Guardados" << endl;}
+	if (Baseball::writemgm())
+	{cout << "GM's Guardados" << endl;}
+	if (Baseball::writemed())
+	{cout << "Medicos Guardados" << endl;}
+	if (Baseball::writetrn())
+	{cout << "Treinadores Guardados" << endl;}
+	if (Baseball::writearb())
+	{cout << "Arbitos Guardados" << endl;}
+	cout << endl;
 	return true;
 }
 
 bool Baseball::writeuti()
 {
-	//string line;
 	ofstream futi("utilizadores.txt");
+	vector<Utilizador *>::iterator it;
 	try
 	{
 		if (futi.is_open())
 		{
-			vector<Utilizador *>::iterator it;
 			for (it = utilizadores.begin(); it != utilizadores.end(); it++)
 			{
-				/*line = (*it)->getid() + "_" + (*it)->getnome() + "_" +
-				 * (*it)->getdn() + "_"	+ (*it)->getnac() + "_" +
-				 * (*it)->getpass() + "_" + (*it)->getpri() + "\n" ;
-				cout << line << endl;*/
-				futi << (*it)->getid() << "_" << (*it)->getnome() << "_" << (*it)->getdn() << "_" << (*it)->getnac() << "_" << (*it)->getpass() + "_" << (*it)->getpri() << endl;
+				futi << (*it)->getid() << "," << (*it)->getnome() << "," <<
+						(*it)->getdn() << "," << (*it)->getnac() << "," <<
+						(*it)->getpass() << "," << (*it)->getpri() << "," << 0 << endl;
 			}
 			futi.close();
 		} else
 		{
-			cout << "Erro a abrir ficheiro" << endl;
+			cout << "Erro a abrir o ficheiro utilizadores" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::writecmp()
+{
+	ofstream fcmp("campeonatos.txt");
+	vector<Campeonato *>::iterator it;
+	vector<Jogo *>::iterator itj;
+	vector<Jogo *> games;
+	unsigned int tam=0;
+	try
+	{
+		if (fcmp.is_open())
+		{
+			for (it = campeonatos.begin(); it != campeonatos.end(); it++)
+			{
+				games.clear();
+				games = (*it)->getjogos();
+				tam = games.size();
+				fcmp << (*it)->getid() << "," << (*it)->getnome() << "," << tam;
+				for (itj = games.begin(); itj != games.end(); itj++)
+				{
+					fcmp << "," << (*itj)->getid();
+				}
+				fcmp << "," << (*it)->getano() << "," << 0 << endl;
+			}
+			fcmp.close();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro campeonatos" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::writejog()
+{
+	ofstream fjog("jogos.txt");
+	vector<Jogo *>::iterator it;
+	vector<Umpire *>::iterator ita;
+	vector<Umpire *> referee;
+	unsigned int tam=0;
+	try
+	{
+		if (fjog.is_open())
+		{
+			for (it = jogos.begin(); it != jogos.end(); it++)
+			{
+				referee.clear();
+				referee = (*it)->getarbitos();
+				tam = referee.size();
+				fjog << (*it)->getid() << "," << (*it)->getvisitante()->getid() << "," <<
+						(*it)->getvisitado()->getid()<< ","	<< (*it)->getdata() << "," << tam;
+				for (ita = referee.begin(); ita != referee.end(); ita++)
+				{
+					fjog << "," << (*ita)->getid();
+				}
+				fjog << "," << (*it)->getstrikes() << "," << (*it)->gethomerun() <<
+						"," << (*it)->getespectadores()<< "," << (*it)->getresultado() <<
+						"," << (*it)->gethit() << "," << (*it)->geterror() <<
+						"," << 0 << endl;
+			}
+			fjog.close();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro jogos" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::writeequ()
+{
+	ofstream fequ("equipas.txt");
+	vector<Equipa *>::iterator it;
+	vector<Jogador *>::iterator itj;
+	vector<Jogador *> players;
+	unsigned int tam=0;
+	try
+	{
+		if (fequ.is_open())
+		{
+			for (it = equipas.begin(); it != equipas.end(); it++)
+			{
+				players.clear();
+				players = (*it)->getjog();
+				tam = players.size();
+				fequ << (*it)->getid() << "," << (*it)->getnome() << "," <<
+						(*it)->getest()->getid() << "," << tam;
+				for (itj = players.begin(); itj != players.end(); itj++)
+				{
+					fequ << "," << (*itj)->getid();
+				}
+				fequ << "," << (*it)->getmgm()->getid() << "," << (*it)->getman()->getid() <<
+						"," << (*it)->getfis()->getid() << "," << (*it)->getpais() <<
+						"," << (*it)->getpat() << "," << (*it)->getdet() << "," << 0 << endl;
+			}
+			fequ.close();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro equipas" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::writeest()
+{
+	ofstream fest("estadios.txt");
+	try
+	{
+		if (fest.is_open())
+		{
+			vector<Estadio *>::iterator it;
+			for (it = estadios.begin(); it != estadios.end(); it++)
+			{
+				fest << (*it)->getid() << "," << (*it)->getnome() << "," <<
+						(*it)->getcap() << "," << 0 << endl;
+			}
+			fest.close();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro estadios" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::writeply()
+{
+	ofstream fply("jogadores.txt");
+	try
+	{
+		if (fply.is_open())
+		{
+			vector<Jogador *>::iterator it;
+			for (it = jogadores.begin(); it != jogadores.end(); it++)
+			{
+				fply << (*it)->getid() << "," << (*it)->getnome() << "," <<
+						(*it)->getdn() << "," << (*it)->getnac() << "," <<
+						(*it)->getpeso() << "," << (*it)->getaltura() << "," <<
+						(*it)->getpos() << "," << (*it)->getsal() << "," <<
+						(*it)->getbio() << "," << 0 << endl;
+			}
+			fply.close();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro jogadores" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::writeman()
+{
+	ofstream fman("managers.txt");
+	vector<Manager *>::iterator it;
+	vector<Treinador*>::iterator itt;
+	vector<Treinador *> trainer;
+	unsigned int tam=0;
+	try
+	{
+		if (fman.is_open())
+		{
+			for (it = managers.begin(); it != managers.end(); it++)
+			{
+				trainer.clear();
+				trainer = (*it)->gettrn();
+				tam = trainer.size();
+				fman << (*it)->getid() << "," << (*it)->getnome() << "," <<
+						(*it)->getdn() << "," << (*it)->getnac() << "," << tam;
+				for (itt = trainer.begin(); itt != trainer.end(); itt++)
+				{
+					fman << "," << (*itt)->getid();
+				}
+				fman << "," << (*it)->getdet() << "," << 0 << endl;
+			}
+			fman.close();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro managers" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::writemgm()
+{
+	ofstream fmgm("mangms.txt");
+	try
+	{
+		if (fmgm.is_open())
+		{
+			vector<ManagerGM *>::iterator it;
+			for (it = mangms.begin(); it != mangms.end(); it++)
+			{
+				fmgm << (*it)->getid() << "," << (*it)->getnome() << "," <<
+						(*it)->getdn() << "," << (*it)->getnac() << "," <<
+						(*it)->getdet() << "," << 0 << endl;
+			}
+			fmgm.close();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro mangms" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::writemed()
+{
+	ofstream fmed("medicos.txt");
+	try
+	{
+		if (fmed.is_open())
+		{
+			vector<PrepFisico *>::iterator it;
+			for (it = medicos.begin(); it != medicos.end(); it++)
+			{
+				fmed << (*it)->getid() << "," << (*it)->getnome() << "," <<
+						(*it)->getdn() << "," << (*it)->getnac() << "," <<
+						(*it)->getdet() << "," << 0 << endl;
+			}
+			fmed.close();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro medicos" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::writetrn()
+{
+	ofstream ftrn("treinadores.txt");
+	try
+	{
+		if (ftrn.is_open())
+		{
+			vector<Treinador *>::iterator it;
+			for (it = treinadores.begin(); it != treinadores.end(); it++)
+			{
+				ftrn << (*it)->getid() << "," << (*it)->getnome() << "," <<
+						(*it)->getdn() << "," << (*it)->getnac() << "," <<
+						(*it)->getdet() << "," << 0 << endl;
+			}
+			ftrn.close();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro treinadores" << endl;
+			return false;
+		}
+	} catch(ErroFx erro) {
+		cout << "Erro no ficheiro " << erro.ficheiro << endl;
+		return false;
+	}
+	return true;
+}
+
+bool Baseball::writearb()
+{
+	ofstream farb("arbitos.txt");
+	try
+	{
+		if (farb.is_open())
+		{
+			vector<Umpire *>::iterator it;
+			for (it = arbitos.begin(); it != arbitos.end(); it++)
+			{
+				farb << (*it)->getid() << "," << (*it)->getnome() << "," <<
+						(*it)->getdn() << "," << (*it)->getnac() << "," <<
+						(*it)->getdet() << "," << 0 << endl;
+			}
+			farb.close();
+		} else
+		{
+			cout << "Erro a abrir o ficheiro arbitos" << endl;
+			return false;
 		}
 	} catch(ErroFx erro) {
 		cout << "Erro no ficheiro " << erro.ficheiro << endl;
@@ -2127,6 +3055,7 @@ int Baseball::login(unsigned int login, string senha)
 	}
 	return -1;
 }
+//---------------------------------------------------------------------
 
 //Pessoas
 bool Baseball::loadppl()
@@ -2134,11 +3063,122 @@ bool Baseball::loadppl()
 	pessoas.clear();
 	try
 	{
-		cout << "Pessoas" << endl;
+		cout << "A carregar todas as Pessoas do sistema..." << endl;
+		pessoas.insert(pessoas.end(),utilizadores.begin(),utilizadores.end());
+		pessoas.insert(pessoas.end(),jogadores.begin(),jogadores.end());
+		pessoas.insert(pessoas.end(),arbitos.begin(),arbitos.end());
+		pessoas.insert(pessoas.end(),medicos.begin(),medicos.end());
+		pessoas.insert(pessoas.end(),treinadores.begin(),treinadores.end());
+		pessoas.insert(pessoas.end(),managers.begin(),managers.end());
+		pessoas.insert(pessoas.end(),mangms.begin(),mangms.end());
+		InsertionSort(pessoas);
+		cout << "Pessoas carregadas" << endl;
 	} catch(ErroVector erro) {
 		cout << "Erro no vector " << erro.vector << endl;
 		return false;
 	}
 	return true;
+}
+//---------------------------------------------------------------------
+
+//Simulacao
+bool Baseball::simulacao(int modo)
+{
+	unsigned int idh, idg;
+	Equipa *home;
+	Equipa *guest;
+	unsigned int innings=9;
+	vector <Jogador *> plysimh, plysimg;
+	cout << endl << "SIMULACAO DE BASEBALL - VERSAO 1.0" << endl << endl;
+	cout << "Equipas existentes: " << endl;
+	vector<Equipa *>::iterator it;
+	for (it = equipas.begin(); it != equipas.end(); it++)
+	{
+		cout << (*it)->getid() << "-> " << (*it)->getnome() << endl;
+	}
+	cout << "Insira id da equipa da casa: ";
+	do
+	{
+		cin >> idh;
+		home = Baseball::getobjequ(idh);
+		if (home == NULL)
+		{
+			cout << "Equipa inexistente" << endl;
+		}
+	} while (home==NULL);
+	cout << "Insira id da equipa visitante: ";
+	do
+	{
+		cin >> idg;
+		guest = Baseball::getobjequ(idg);
+		if (guest == NULL)
+		{
+			cout << "Equipa inexistente" << endl;
+		}
+	} while (guest==NULL);
+	plysimh = home->getjog();
+	plysimg = guest->getjog();
+	if ( (plysimh.size()<9) && (plysimg.size()<9) )
+	{
+		if (plysimh.size() > plysimg.size())
+		{
+			innings=plysimg.size();
+		}else
+		{
+			innings=plysimh.size();
+		}
+	}
+	try
+	{
+		Simulacao *sim = new Simulacao(plysimh, plysimg);
+		cout << "Rondas: " << innings << endl;
+		getchar();
+		Baseball::pause(modo);
+		cout << "Inicio do jogo" << endl << endl;
+		sim->simula(modo, innings);
+		//sim->~Simulacao();
+		delete(sim);
+	} catch(ErroSim erro) {
+		cout << "Erro na simulacao " << erro.simul << endl;
+		return false;
+	}
+	return true;
+}
+
+void Baseball::pause(int modo)
+{
+	if (modo==1)
+	{
+		string c;
+		cout << endl << "Pressione enter para continuar..." << endl;
+		getline (cin, c);
+	}
+	//c = getchar();
+	//cout << c << endl;
+}
+
+void Baseball::simhelp()
+{
+	cout << "AJUDA: " << endl << endl <<
+	"A simulacao do jogo pode ser feita de duas maneiras: Completa e Passo a Passo." << endl <<
+	"A Simulacao Completa corre o jogo sem paragens mostrando o resultado;" << endl <<
+	"A Simulacao Passo a Passo, como o nome diz, corre o jogo com intervalos de accao" << endl <<
+	"em que o utilizador pressiona uma tecla para prosseguir." << endl <<
+	"O numero de rondas por defeito é 9. No entanto, se nao houver jogadores suficientes" << endl <<
+	"o numero de rondas é igual ao numero de jogadores da equipa com menos jogadores." << endl << endl;
+}
+//---------------------------------------------------------------------
+
+//Ajuda
+void Baseball::help()
+{
+	cout << "AJUDA:" << endl << endl <<
+    "O acesso ao sistema é definido em função da prioridade do Utilizador." << endl <<
+    "O utilizador que entra no sistema como visitante so tem acesso a informação contida nas diferentes opções," << endl <<
+    "ou seja, so pode visualizar o conteudo de cada classe e realizar pesquisas." << endl <<
+    "O Utilizador registado no sistema tem uma maior acessibilidade pois pode realizar tarefas relativas" << endl <<
+    "a sua actualização, podendo deste modo adicionar, remover, editar, visualizar e pesquisar informações." << endl <<
+    "O Administrador tem acesso aos mesmos dados que o Utilizador, no entanto, pode tambem adicionar, remover," << endl <<
+    "editar e visualizar Utilizadores podendo também visualizar todas as pessoas envolvidas no sistema." << endl << endl;
 }
 //---------------------------------------------------------------------

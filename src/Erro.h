@@ -1,6 +1,8 @@
 #ifndef ERRO_H_
 #define ERRO_H_
 
+#include <stdexcept>
+
 class ErroFx {
     public:
 		string ficheiro;
@@ -12,5 +14,25 @@ class ErroVector {
 		string vector;
         ErroVector(string vec) {vector = vec;}
 };
+
+class ErroSim {
+    public:
+		string simul;
+        ErroSim(string sim) {simul = sim;}
+};
+
+class BadIterator { };
+
+class NoMoreSpace { };
+
+class BadPosition { };
+
+class ErroInterno { };
+
+class Underflow { };
+
+class Overflow { };
+
+class BadArgs { };
 
 #endif
